@@ -2,6 +2,8 @@
 #define SPONGE_LIBSPONGE_BYTE_STREAM_HH
 
 #include <string>
+#include <deque>
+#include "buffer.hh"
 
 //! \brief An in-order byte stream.
 
@@ -16,8 +18,12 @@ class ByteStream {
     // all, but if any of your tests are taking longer than a second,
     // that's a sign that you probably want to keep exploring
     // different approaches.
-
-    bool _error{};  //!< Flag indicating that the stream suffered an error.
+    deque<Buffer> _buffer{};
+    size_t _capacity;  //!< The buffer of the stream
+    size_t _written_cnt;  //!< The capacity of the stream
+    size_t _read_cnt;  //!< The number of bytes written
+    bool _input_ended_flag = false;  //!< The number of bytes read
+    bool _error = false;  //!< Flag indicating that the stream suffered an error.
 
   public:
     //! Construct a stream with room for `capacity` bytes.
