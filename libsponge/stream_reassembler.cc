@@ -30,7 +30,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         else if (_eof_index != index + data.size())
             throw runtime_error("StreamReassembler::push_substring: Inconsistent EOF indexes!");
     }
-    // skip the overlapped part
+    // skip the overlapped part, write substring into cache
     for (size_t i = start, j = start - index; i < end; i++, j++) {
         auto &t = _stream[i % _capacity];
         if (t.second == true) {
@@ -42,7 +42,7 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         }
     }
     string str;
-    // write the contiguous substrings into the output stream in order
+    // write the contiguous substrings from cache into the output stream in order
     while (_cur_index < _eof_index && _stream[_cur_index % _capacity].second == true) {
         str.push_back(_stream[_cur_index % _capacity].first);
         _stream[_cur_index % _capacity] = {0, false};
