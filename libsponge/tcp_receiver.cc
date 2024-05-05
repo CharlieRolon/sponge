@@ -11,9 +11,25 @@ void DUMMY_CODE(Targs &&... /* unused */) {}
 using namespace std;
 
 void TCPReceiver::segment_received(const TCPSegment &seg) {
-    DUMMY_CODE(seg);
+    const auto &header = seg.header();
+    if (!_isn.has_value()) {
+        if (!header.syn) return ;
+        _isn = header.seqno;
+    }
+    uint64_t checkpoint = _reassembler.stream_out().bytes_written();
+    uint64_t abs_seq = unwrap(header.seqno, _isn.value(), checkpoint);
+    uint64_t stream_index = abs_seq - 1 + (header.syn ? 1 : 0);
+    _reassembler.push_substring(seg.payload().copy(), stream_index, header.fin);
 }
 
-optional<WrappingInt32> TCPReceiver::ackno() const { return {}; }
+optional<WrappingInt32> TCPReceiver::ackno() const {
+    if (!_isn.has_value()) return nullopt;
+    // the first byte that the receiver doesn't know
+    // abs_seq of the byte = abs_seq of last byte that has been received(bytes_written) + 1(next) + 1?(fin take extra one index)
+    uint64_t abs_seq = _reassembler.stream_out().bytes_written() + 1 + (_reassembler.stream_out().input_ended() ? 1:0);
+    return wrap(abs_seq, _isn.value());
+}
 
-size_t TCPReceiver::window_size() const { return {}; }
+size_t TCPReceiver::window_size() const {
+    return _capacity - _reassembler.stream_out().buffer_size();
+}
