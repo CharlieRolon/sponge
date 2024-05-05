@@ -18,7 +18,7 @@ class ByteStream {
     // all, but if any of your tests are taking longer than a second,
     // that's a sign that you probably want to keep exploring
     // different approaches.
-    deque<Buffer> _buffer{};
+    std::deque<Buffer> _buffer{};
     size_t _capacity;  //!< The buffer of the stream
     size_t _written_cnt;  //!< The capacity of the stream
     size_t _read_cnt;  //!< The number of bytes written

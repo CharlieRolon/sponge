@@ -14,7 +14,7 @@ using namespace std;
 
 StreamReassembler::StreamReassembler(const size_t capacity) : _output(capacity), _capacity(capacity),
                                                               _stream(capacity), _cur_index(0), 
-                                                              _unassembled_bytes(0), _eof_index(numeric_limits<uint64_t>::max()){}
+                                                              _eof_index(numeric_limits<uint64_t>::max()), _unassembled_bytes(0){}
 
 
 //! \details This function accepts a substring (aka a segment) of bytes,
